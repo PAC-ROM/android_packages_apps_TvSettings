@@ -76,7 +76,7 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
     private static final String KEY_BUILD = "build";
     private static final String KEY_VERSION = "version";
     private static final String KEY_REBOOT = "reboot";
-    private static final String KEY_MOD_VERSION = "mod_version";
+    private static final String KEY_PAC_VERSION = "pac_version";
     private static final String FILENAME_PROC_VERSION = "/proc/version";
     private static final String LOG_TAG = "AboutSettings";
     private static final String PROPERTY_SELINUX_STATUS = "ro.build.selinux";
@@ -100,14 +100,6 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
     private static final String SETTINGS_DEVICE_NAME_INTENT_ACTION = "android.settings.DEVICE_NAME";
 
     /**
-     * Intent action of CyanogenMod updater activity.
-     */
-    private static final ComponentName mCmupdaterActivity =
-            new ComponentName("com.cyanogenmod.updater",
-                    "com.cyanogenmod.updater.UpdatesSettingsTv");
-    private static final String SETTINGS_CM_UPDATER_ACTION = "android.intent.action.MAIN";
-
-    /**
      * Intent to launch ads activity.
      */
     private static final String SETTINGS_ADS_ACTIVITY_PACKAGE = "com.google.android.gms";
@@ -118,7 +110,7 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
      * Get the CyanogenMod version.
      */
     public static String getDisplayVersion() {
-        return SystemProperties.get("ro.cm.display.version");
+        return SystemProperties.get("ro.pac.version");
     }
 
     /**
@@ -325,12 +317,12 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
                 intent.setComponent(mPlatLogoActivity);
                 startActivity(intent);
             }
-        } else if (TextUtils.equals(key, KEY_MOD_VERSION)) {
+        } else if (TextUtils.equals(key, KEY_PAC_VERSION)) {
             mHits[mHitsIndex] = SystemClock.uptimeMillis();
             mHitsIndex = (mHitsIndex + 1) % mHits.length;
             if (mHits[mHitsIndex] >= SystemClock.uptimeMillis() - 500) {
                 Intent intent = new Intent();
-                intent.putExtra("is_cm", true);
+                intent.putExtra("is_pac", true);
                 intent.setComponent(mPlatLogoActivity);
                 startActivity(intent);
             }
@@ -374,16 +366,6 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
 
     private ArrayList<Action> getActions() {
         ArrayList<Action> actions = new ArrayList<Action>();
-        Intent cmupdaterIntent = new Intent();
-        cmupdaterIntent.setComponent(mCmupdaterActivity);
-        cmupdaterIntent.setAction(SETTINGS_CM_UPDATER_ACTION);
-        cmupdaterIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        actions.add(new Action.Builder()
-                .key("cmupdate")
-                .title(getString(R.string.about_cmupdate_settings_title))
-                .intent(cmupdaterIntent)
-                .enabled(true)
-                .build());
         actions.add(new Action.Builder()
                 .key("name")
                 .title(getString(R.string.device_name))
@@ -426,8 +408,8 @@ public class AboutActivity extends DialogActivity implements ActionAdapter.Liste
                 .description(Build.MODEL)
                 .build());
         actions.add(new Action.Builder()
-                .key(KEY_MOD_VERSION)
-                .title(getString(R.string.about_mod_version))
+                .key(KEY_PAC_VERSION)
+                .title(getString(R.string.about_pac_version))
                 .description(getDisplayVersion())
                 .enabled(true)
                 .build());

@@ -88,7 +88,6 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
     private static String key;
     private static final String ADB_ROOT_PROPERTY = "service.adb.root";
     private static final String ROOT_ACCESS_PROPERTY = "persist.sys.root_access";
-    private static final String UPDATE_RECOVERY_PROPERTY = "persist.sys.recovery_update";
     private static final String TERMINAL_APP_PACKAGE = "com.android.terminal";
 
     private static SettingsHelper mHelper;
@@ -168,8 +167,6 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
                             getRootAccessStatus(mHelper.getSystemProperties(
                                     ROOT_ACCESS_PROPERTY))));
                 }
-                mActions.add(ActionType.DEVELOPER_CM_UPDATE_RECOVERY.toAction(mResources,
-                        getUpdateCmRecoveryLabel()));
                 if (isPackageInstalled(this, TERMINAL_APP_PACKAGE)) {
                     mActions.add(ActionType.DEVELOPER_CM_ENABLE_TERMINAL.toAction(mResources,
                     getEnableTerminalValue()));
@@ -185,12 +182,6 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
                         mResources.getStringArray(R.array.root_access_entries),
                         0 /* non zero check set ID */,
                         mHelper.getSystemProperties(ROOT_ACCESS_PROPERTY));
-                break;
-            case DEVELOPER_CM_UPDATE_RECOVERY:
-                mActions = Action.createActionsFromArrays(
-                        mResources.getStringArray(R.array.update_cm_recovery_values),
-                        mResources.getStringArray(R.array.update_cm_recovery_entries), 1,
-                        getUpdateCmRecoveryValue());
                 break;
             case DEVELOPER_CM_ADB_OVER_NETWORK:
                 mActions.add(ActionType.DEVELOPER_CM_ADB_OVER_NETWORK.toAction(mResources,
@@ -357,19 +348,16 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
                 setView(R.string.system_debugging, R.string.system_developer_options, 0, 0);
                 break;
             case DEVELOPER_CM:
-                setView(R.string.system_cm, R.string.system_developer_options, 0, 0);
+                setView(R.string.system_pac, R.string.system_developer_options, 0, 0);
                 break;
             case DEVELOPER_CM_ALLOW_ROOT_ACCESS:
-                setView(R.string.root_access, R.string.system_cm, 0, 0);
-                break;
-            case DEVELOPER_CM_UPDATE_RECOVERY:
-                setView(R.string.update_recovery_title, R.string.system_cm, 0, 0);
+                setView(R.string.root_access, R.string.system_pac, 0, 0);
                 break;
             case DEVELOPER_CM_ADB_OVER_NETWORK:
                 setView(R.string.adb_over_network, R.string.system_debugging, 0, 0);
                 break;
             case DEVELOPER_CM_ENABLE_TERMINAL:
-                setView(R.string.enable_terminal_title, R.string.system_cm, 0, 0);
+                setView(R.string.enable_terminal_title, R.string.system_pac, 0, 0);
                 break;
             case DEVELOPER_INPUT:
                 setView(R.string.system_input, R.string.system_developer_options, 0, 0);
@@ -455,13 +443,6 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
                 } else {
                     writeRootAccessOptions();
                     goBack();
-                }
-                return;
-            case DEVELOPER_CM_UPDATE_RECOVERY:
-               if (key.equals("true")) {
-                    updateCmRecoveryOnWarning();
-                } else {
-                    updateCmRecoveryOffWarning();
                 }
                 return;
             case DEVELOPER_CM_ADB_OVER_NETWORK:
@@ -962,76 +943,6 @@ public class DeveloperOptionsActivity extends BaseSettingsActivity
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Enabling root access canceled, go back
-                        goBack();
-                    }
-                })
-                .show();
-    }
-
-    /**
-     * Gets the update CM recovery status based on system property.
-     */
-    private String getUpdateCmRecoveryValue() {
-        String value = SystemProperties.get(UPDATE_RECOVERY_PROPERTY);
-        if (value == null) {
-            value = "false"; // default value.
-        }
-        return value;
-    }
-
-    private String getUpdateCmRecoveryLabel() {
-        // This is a little ugly, but this shouldn't be called much.
-        ArrayList<Action> actions = Action.createActionsFromArrays(
-                mResources.getStringArray(R.array.update_cm_recovery_values),
-                mResources.getStringArray(R.array.update_cm_recovery_entries), 1,
-                getUpdateCmRecoveryValue());
-
-        for (Action action : actions) {
-            if (action.isChecked()) {
-                return action.getTitle();
-            }
-        }
-        return actions.get(0).getTitle();
-    }
-
-    private void updateCmRecoveryOnWarning() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.update_recovery_title)
-                .setMessage(R.string.update_recovery_on_warning)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // We are OK to turn recovery update on, trigger it
-                        mHelper.setSystemProperties(UPDATE_RECOVERY_PROPERTY, "true");
-                        goBack();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Updating recovery canceled, go back
-                        goBack();
-                    }
-                })
-                .show();
-    }
-
-    private void updateCmRecoveryOffWarning() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.update_recovery_title)
-                .setMessage(R.string.update_recovery_off_warning)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // We are OK to turn recovery update off, trigger it
-                        mHelper.setSystemProperties(UPDATE_RECOVERY_PROPERTY, "false");
-                        goBack();
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Not updating recovery canceled, go back
                         goBack();
                     }
                 })
